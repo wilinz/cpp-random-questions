@@ -16,6 +16,7 @@
 #include "questions_db-odb.hxx"
 #include "student.hpp"
 #include "student-odb.hxx"
+#include "oatpp/web/server/interceptor/AllowCorsGlobal.hpp"
 
 using json = nlohmann::json;
 
@@ -127,7 +128,7 @@ public:
                     Question q = *questionResult.begin();
                     resp["data"].push_back(q.getText());
                 }
-                auto r= ResponseFactory::createResponse(Status::CODE_403, resp.dump());
+                auto r = ResponseFactory::createResponse(Status::CODE_403, resp.dump());
                 r->putHeader("content-type", "application/json");
                 return r;
             }
@@ -146,7 +147,7 @@ public:
             resp["data"].push_back(question.getText());
             question.setSelected(true);
             db->update(question);
-        } else{
+        } else {
             resp["code"] = 404;
             resp["msg"] = "您没有抽取到题目哦";
         }
@@ -173,6 +174,10 @@ void run() {
 
     // 创建 HTTP 连接处理程序
     auto connectionHandler = oatpp::web::server::HttpConnectionHandler::createShared(router);
+
+    /* Add CORS-enabling interceptors */
+    connectionHandler->addRequestInterceptor(std::make_shared<oatpp::web::server::interceptor::AllowOptionsGlobal>());
+    connectionHandler->addResponseInterceptor(std::make_shared<oatpp::web::server::interceptor::AllowCorsGlobal>());
 
     // 创建 TCP 连接提供者
     auto connectionProvider = oatpp::network::tcp::server::ConnectionProvider::createShared(
