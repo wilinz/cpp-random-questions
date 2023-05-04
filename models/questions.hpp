@@ -20,8 +20,4 @@ public:
     vector<string> questions;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(ImportQuestionRequest, password, questions);
 
-    friend ostream &operator<<(ostream &os, const ImportQuestionRequest &request) {
-        os << "password: " << request.password << " questions: " << request.questions.size();
-        return os;
-    }
 };
